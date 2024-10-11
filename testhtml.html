@@ -1,0 +1,28 @@
+<style>
+
+.timer-bar-container {
+    height: 20px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.timer-bar {
+    color: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateX(-50%); /* 通过位移将元素向左移动自身宽度的一半 */
+    height: 20px;
+		width: 100%;
+		
+    background-color: #f5f5f599;
+    z-index: 1000;
+    text-align: center; /* 保持文字居中 */
+}
+</style>
+
+<div class="timer-bar-container">
+    <div class="timer-bar" id="timer-bar"></div>
+</div>

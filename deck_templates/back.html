@@ -1,0 +1,773 @@
+<script>
+  // v1.0.0 - https://github.com/SimonLammer/anki-persistence/blob/eeb2e1a9e37c941dd63e1fe6c2a257f043c40e0d/script.js
+  if(void 0===window.Persistence){var _persistenceKey="github.com/SimonLammer/anki-persistence/",_defaultKey="_default";if(window.Persistence_sessionStorage=function(){var e=!1;try{"object"==typeof window.sessionStorage&&(e=!0,this.clear=function(){for(var e=0;e<sessionStorage.length;e++){var t=sessionStorage.key(e);0==t.indexOf(_persistenceKey)&&(sessionStorage.removeItem(t),e--)}},this.setItem=function(e,t){null==t&&(t=e,e=_defaultKey),sessionStorage.setItem(_persistenceKey+e,JSON.stringify(t))},this.getItem=function(e){return null==e&&(e=_defaultKey),JSON.parse(sessionStorage.getItem(_persistenceKey+e))},this.removeItem=function(e){null==e&&(e=_defaultKey),sessionStorage.removeItem(_persistenceKey+e)})}catch(e){}this.isAvailable=function(){return e}},window.Persistence_windowKey=function(e){var t=window[e],n=!1;"object"==typeof t&&(n=!0,this.clear=function(){t[_persistenceKey]={}},this.setItem=function(e,n){null==n&&(n=e,e=_defaultKey),t[_persistenceKey][e]=n},this.getItem=function(e){return null==e&&(e=_defaultKey),null==t[_persistenceKey][e]?null:t[_persistenceKey][e]},this.removeItem=function(e){null==e&&(e=_defaultKey),delete t[_persistenceKey][e]},null==t[_persistenceKey]&&this.clear()),this.isAvailable=function(){return n}},window.Persistence=new Persistence_sessionStorage,Persistence.isAvailable()||(window.Persistence=new Persistence_windowKey("py")),!Persistence.isAvailable()){var titleStartIndex=window.location.toString().indexOf("title"),titleContentIndex=window.location.toString().indexOf("main",titleStartIndex);titleStartIndex>0&&titleContentIndex>0&&titleContentIndex-titleStartIndex<10&&(window.Persistence=new Persistence_windowKey("qt"))}}
+</script>
+<div id="card-answer" style="display: none;">{{answer}}</div>
+<div id="card-options" style="display: none;">{{options}}</div>
+<div id="card-tags" style="display: none;">{{Tags}}</div>
+<div id="card-notes" style="display: none;">{{notes}}</div>
+<div id="card-question-cloze" style="display: none;">{{cloze:question}}</div>
+<div id="card-question" style="display: none;">{{question}}</div>
+
+<body>
+  <div class="timer-bar-container"><div id="front-timer-bar" class="back-timer-bar timer-bar"></div></div>
+  <div class="wrap-container">
+    <div class="body-container">
+      <div class="question">{{yzdd_id}}.<span id="questionType" class="question-type"> </span><span id='question'></span></div>
+      {{image}}
+      <div class="options" id="back-options">
+        <li class="option"> </li>
+        <li class="option"> </li>
+      </div>
+      <div id="back-tag"></div>
+      <div class="footer"><a href="javascript:showSettings();">卡片设置</a></div>
+      <div id="back-footer" class="footer"><a href="javascript:tramp();">踩麦花</a></div>
+
+    </div>
+    <hr>
+    <div id="settingsModal" class="modal"></div>
+    <script>
+      
+        var DEFAULT_SHOW_QUESTION_TYPE = '0'
+        var DEFAULT_HIDE_OPTIONS = '1'
+        var DEFAULT_RANDOM_OPTIONS = '1'
+        var DEFAULT_DELAY_OPTIONS = '0'
+        var DEFAULT_NORMAL_OPTIONS = '0'
+        var DEFAULT_HIDE_NOTES = '0'
+        var DEFAULT_AUTO_FLIP = '1'
+        var DEFAULT_ANIMATION = '1'
+        var DEFAULT_REVIEW_LIMIT = '1' // AUTO_ACTION
+        var DEFAULT_RESTORE_OPTIONS = '0'
+        var DEFAULT_DARK_MODE = '0' // TRANSPARENT_MODE
+        var DEFAULT_CEREANILLA = '1'
+
+
+        var showQuestionType = DEFAULT_SHOW_QUESTION_TYPE
+        var hideOptions = DEFAULT_HIDE_OPTIONS
+        var randomOptions = DEFAULT_RANDOM_OPTIONS
+        var delayOptions = DEFAULT_DELAY_OPTIONS
+        var normalOption = DEFAULT_NORMAL_OPTIONS
+        var hideNotes = DEFAULT_HIDE_NOTES
+        var autoFlip = DEFAULT_AUTO_FLIP
+        var animation = DEFAULT_ANIMATION
+        var reviewLimit = DEFAULT_REVIEW_LIMIT
+        var restoreOptions = DEFAULT_RESTORE_OPTIONS
+        var darkMode = DEFAULT_DARK_MODE
+        var cereanilla = DEFAULT_CEREANILLA
+        var isDelayOptionComing = false
+
+
+        
+        function showSettings() {
+          document.getElementById("settingsModal").style.display = 'block'
+          document.getElementById('front-timer-bar').style.animationPlayState = 'paused'
+        }
+
+        function hideSettings() {
+          document.getElementById("settingsModal").style.display = 'none'
+          if (Persistence.isAvailable() && Persistence.getItem('ANKI-SETTINGS-REVIEW-LIMIT') !== '0' && Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') !== '1') {
+            document.getElementById('front-timer-bar').style.animationPlayState = 'running'
+          }
+        }
+        
+        function applySettings() {
+          if (Persistence.isAvailable()) {
+            showQuestionType = Persistence.getItem('ANKI-SETTINGS-SHOW-QUESTION-TYPE') || DEFAULT_SHOW_QUESTION_TYPE
+            hideOptions = Persistence.getItem('ANKI-SETTINGS-HIDE-OPTIONS') || DEFAULT_HIDE_OPTIONS
+            randomOptions = Persistence.getItem('ANKI-SETTINGS-RANDOM-OPTIONS') || DEFAULT_RANDOM_OPTIONS
+            delayOptions = Persistence.getItem('ANKI-SETTINGS-DELAY-OPTIONS') || DEFAULT_DELAY_OPTIONS
+            normalOption = Persistence.getItem('ANKI-SETTINGS-NORMAL-OPTIONS') || DEFAULT_NORMAL_OPTIONS
+            hideNotes = Persistence.getItem('ANKI-SETTINGS-HIDE-NOTES') || DEFAULT_HIDE_NOTES
+            autoFlip = Persistence.getItem('ANKI-SETTINGS-AUTO-FLIP') || DEFAULT_AUTO_FLIP
+            animation = Persistence.getItem('ANKI-SETTINGS-ANIMATION') || DEFAULT_ANIMATION
+            reviewLimit = Persistence.getItem('ANKI-SETTINGS-REVIEW-LIMIT') || DEFAULT_REVIEW_LIMIT
+            restoreOptions = Persistence.getItem('ANKI-SETTINGS-RESTORE-OPTIONS') || DEFAULT_RESTORE_OPTIONS
+            darkMode = Persistence.getItem('ANKI-SETTINGS-DARK-MODE') || DEFAULT_DARK_MODE
+            cereanilla = Persistence.getItem('ANKI-SETTINGS-CEREANILLA') || DEFAULT_CEREANILLA
+          }
+          document.getElementById('hide-option').checked = hideOptions === '1'
+          document.getElementById('random-option').checked = randomOptions === '1'
+          document.getElementById('show-type').checked = showQuestionType === '1'
+          document.getElementById('delay-option').checked = delayOptions === '1'
+          document.getElementById('normal-option').checked = normalOption === '1'
+          document.getElementById('hide-notes').checked = hideNotes === '1'
+          document.getElementById('auto-flip').checked = autoFlip === '1'
+          document.getElementById('animation').checked = animation === '1'
+          document.getElementById('review-limit').checked = reviewLimit === '1'
+          document.getElementById('restore-options').checked = restoreOptions === '1'
+          document.getElementById('dark-mode').checked = darkMode === '1'
+          document.getElementById('cereanilla').checked = cereanilla === '1'
+          dealQuestionType(showQuestionType)
+        }
+
+        function switchHideOption(input) {
+          rerenderOptions(input, 'ANKI-SETTINGS-HIDE-OPTIONS')
+        }
+
+        function switchDelayOption(input) {
+          rerenderOptions(input, 'ANKI-SETTINGS-DELAY-OPTIONS')
+        }
+
+        function switchRandomOption(input) {
+          rerenderOptions(input, 'ANKI-SETTINGS-RANDOM-OPTIONS')
+        }
+
+        function switchNormalOption(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-NORMAL-OPTIONS')
+        }
+
+        function switchHideNotes(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-HIDE-NOTES')
+        }
+
+        function switchShowType(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-SHOW-QUESTION-TYPE')
+          dealQuestionType(showQuestionType)
+        }
+
+        function switchAutoFlip(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-AUTO-FLIP')
+        }
+
+        function switchAnimation(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-ANIMATION')
+        }
+
+        function switchReviewLimit(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-REVIEW-LIMIT')
+          setTimerBar()
+        }
+
+        function switchRestoreOptions(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-RESTORE-OPTIONS')
+        }
+
+        function switchDarkMode(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-DARK-MODE')
+          checkDarkMode()
+        }
+        function switchCereanilla(input) {
+          extractKeyFromInputAndSave(input, 'ANKI-SETTINGS-CEREANILLA')
+          checkCereanilla()
+        }
+
+        function extractKeyFromInputAndSave(input, persistKey) {
+          var key = input.checked ? '1' : '0'
+          if (Persistence.isAvailable()) {
+            Persistence.setItem(persistKey, key)
+            if (persistKey === 'ANKI-SETTINGS-RANDOM-OPTIONS' || persistKey === 'ANKI-SETTINGS-DELAY-OPTIONS' || persistKey === 'ANKI-SETTINGS-HIDE-OPTIONS') {
+              Persistence.setItem('ANKI-SELECTED', '')
+            }
+          }
+          if (persistKey === 'ANKI-SETTINGS-HIDE-OPTIONS') {
+            hideOptions = key
+          } else if (persistKey === 'ANKI-SETTINGS-DELAY-OPTIONS') {
+            delayOptions = key
+          } else if (persistKey === 'ANKI-SETTINGS-RANDOM-OPTIONS') {
+            randomOptions = key
+          } else if (persistKey === 'ANKI-SETTINGS-NORMAL-OPTIONS') {
+            normalOption = key
+          } else if (persistKey === 'ANKI-SETTINGS-SHOW-QUESTION-TYPE') {
+            showQuestionType = key
+          } else if (persistKey === 'ANKI-SETTINGS-HIDE-NOTES') {
+            hideNotes = key
+          } else if (persistKey === 'ANKI-SETTINGS-AUTO-FLIP') {
+            autoFlip = key
+          } else if (persistKey === 'ANKI-SETTINGS-ANIMATION') {
+            animation = key
+          } else if (persistKey === 'ANKI-SETTINGS-REVIEW-LIMIT') {
+            reviewLimit = key
+          } else if (persistKey === 'ANKI-SETTINGS-RESTORE-OPTIONS') {
+            restoreOptions = key
+          } else if (persistKey === 'ANKI-SETTINGS-DARK-MODE') {
+            darkMode = key
+          } else if (persistKey === 'ANKI-SETTINGS-CEREANILLA') {
+            cereanilla = key
+          }
+          return key
+        }
+
+        function rerenderOptions(input, persistKey) {
+          extractKeyFromInputAndSave(input, persistKey)
+        }
+
+        function dealQuestionType(showQuestionType) {
+          if (Persistence.isAvailable()) {
+            Persistence.setItem('ANKI-SETTINGS-SHOW-QUESTION-TYPE', showQuestionType)
+          }
+        }
+
+        function addModelContent() {
+          document.getElementById('settingsModal').innerHTML = '<div class="modal-content">\n' +
+            '    <span class="close" onclick="hideSettings()">&times;</span>\n' +
+            '    <div class="settings-block">\n' +
+            '      <hr>问题设置\n' + 
+            '      <div class="single-setting">\n' +
+            '        <div title="目前支持单选/多选/判断" class="setting-label">显示类型</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="show-type" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchShowType(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="背面不自动显示解析，可以点击“显示解析”按钮显示" class="setting-label">隐藏解析</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="hide-notes" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchHideNotes(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <hr>选项设置\n' +
+            '      <div class="single-setting">\n' +
+            '        <div class="setting-label">隐藏选项--后内容</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="hide-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchHideOption(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div class="setting-label">打乱选项位置</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="random-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchRandomOption(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div class="setting-label">答案恢复选项顺序</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="restore-options" class="mui-switch mui-switch-anim" type="checkbox" onchange="extractKeyFromInputAndSave(this, \'ANKI-SETTINGS-RESTORE-OPTIONS\')">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div class="setting-label">延迟显示选项</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="delay-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchDelayOption(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <hr>外观设置\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="深色模式搭配纯色模式效果更佳" class="setting-label">纯色模式</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="normal-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchNormalOption(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="时间提示条的动画"class="setting-label">动画效果</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="animation" class="mui-switch mui-switch-anim" type="checkbox" onchange="extractKeyFromInputAndSave(this, \'ANKI-SETTINGS-ANIMATION\')">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="也就是透明模式，调整anki到深色模式即可适配" class="setting-label">深色模式</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="dark-mode" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchDarkMode(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <hr>功能设置\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="作出选择或时间用完后自动翻转到背面" class="setting-label">自动翻转</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="auto-flip" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchAutoFlip(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="全对-简单；漏选-困难；错选-重来" class="setting-label">自动分类</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="review-limit" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchReviewLimit(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '      <div class="single-setting">\n' +
+            '        <div title="调节学习压力（不是" class="setting-label">踩麦花</div>\n' +
+            '        <div class="setting-switch">\n' +
+            '          <input id="cereanilla" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchCereanilla(this)">\n' +
+            '        </div>\n' +
+            '      </div>\n' +
+            '    </div>\n' +
+            '  </div>'
+        }
+        function renameIOsSendMessage(){
+          if (window['sendMessage']) {
+            window['sendMessage2'] = window['sendMessage']
+            window['sendMessage'] = null
+          }
+        }
+        renameIOsSendMessage()
+        addModelContent()
+        applySettings()
+    </script>
+  
+    <script>
+      function updateImage(image_element, image_url) {
+        if (image_url !== image_element.src) {
+          image_element.src = image_url
+          image_element.style.width = 'auto'
+        }
+      }
+      function cardAnswer() {
+        return document.getElementById('card-answer').innerHTML
+      }
+      function cardOptions() {
+        return document.getElementById('card-options').innerHTML
+        
+      }
+      function cardTags() {
+        return document.getElementById('card-tags').innerHTML
+      }
+      function cardNotes() {
+        return document.getElementById('card-notes').innerHTML
+      }
+      function cardQuestion() {
+        var cloze_question = document.getElementById('card-question-cloze').innerHTML
+        if (cloze_question !== ''){
+          // alert('cloze')
+          return cloze_question
+        } else { 
+          // alert('not-cloze')
+          return document.getElementById('card-question').innerHTML
+        }
+      }
+      function fillQuestion() {
+        var question = cardQuestion()
+        document.getElementById('question').innerHTML = question
+      }
+      function showBackOptions() {
+        var _isDarkMode = Persistence.getItem('ANKI-SETTINGS-DARK-MODE') === '1'
+        var _isNormalOption = isNormalOption()
+        var correctClass = _isNormalOption ? 'correct' : 'correct-light'
+        var wrongClass = _isNormalOption ? 'wrong' : 'wrong-light'
+        var shouldSelectClass = _isNormalOption ? 'should-select' : 'should-select-light'
+        var optionObjs = getOptionObjs()
+        var liList = ''
+        var isMulti = cardAnswer().indexOf('||') > 0
+        
+        var selectedNumbers = (Persistence.getItem('ANKI-SELECTED') || '').trim().split(',')
+        var hasSelected = (selectedNumbers.length > 0 && selectedNumbers[0] !== '')
+        // var selectedOptions = []
+        // var correctOptions = []
+        var ease = 0
+        for (var i in optionObjs) {
+          var _optionObj = optionObjs[i]
+          var _option = _optionObj.label
+          var _optionKey = _optionObj.key + ''
+          var _isSelected = isSelected(_optionKey)
+          var _isCorrect = isCorrectAnswer(_optionKey)
+          var _class = ''
+          if (isMulti) {
+            if (_isSelected && _isCorrect) {
+              _class = 'option ' + correctClass
+              if (ease == 0)ease = 3
+              // selectedOptions.push(i)
+              // correctOptions.push(i)
+            } else if (!_isSelected && _isCorrect) {
+              _class = 'option ' + shouldSelectClass
+              if (ease == 0 || ease == 3)ease = 2
+              // correctOptions.push(i)
+            } else if (_isSelected && !_isCorrect) {
+              _class = 'option ' + wrongClass
+              ease = 1
+              // selectedOptions.push(i)
+            } else {
+              _class = 'option'
+            }
+          } else {
+            if (_isCorrect) {
+              _class = hasSelected ? 'option ' + correctClass : 'option ' + shouldSelectClass
+              ease = _isSelected ? 3 : (hasSelected ? 1 : 2)
+              // if (hasSelected) selectedOptions.push(i)
+              // correctOptions.push(i)
+            } else {
+              _class = _isSelected ? 'option ' + wrongClass : 'option'
+              // if (_isSelected) selectedOptions.push(i)
+            }
+          }
+          if (_isDarkMode) _class = 'night ' + _class
+          liList += "<li class='" + _class + "'>" + _option + "</li>"
+        }
+        if (Persistence.isAvailable())Persistence.setItem('ANKI-EASE', ease)
+        // document.querySelector('.tips').textContent = '正确答案：' + numberToAlpha(correctOptions) + ' 你的答案：' + numberToAlpha(selectedOptions)
+        document.getElementById("back-options").innerHTML = liList
+        // 清除计时器
+        timerInterval = Persistence.getItem('ANKI-TIMER-BAR-INTERVAL')
+        if (timerInterval) {
+          clearInterval(timerInterval)
+        }
+        Persistence.setItem('ANKI-SELECTED', '')
+      }
+  
+      function isCorrectAnswer(optionKey) {
+        return cardAnswer().indexOf(optionKey) > -1
+      }
+  
+      function isSelected(optionKey) {
+        if (!Persistence.isAvailable()) {
+          return false
+        }
+        return (Persistence.getItem('ANKI-SELECTED') || '').indexOf(optionKey) > -1
+      }
+  
+      function getOptionObjs() {
+        var optionArray = cardOptions().trim().split("||")
+        var optionObjs = []
+        for (var i in optionArray) {
+          optionObjs.push({
+            key: Number.parseInt(i) + 1,
+            label: optionArray[i]
+          })
+        }
+        if (Persistence.isAvailable()) {
+          if (Persistence.getItem('ANKI-SETTINGS-RESTORE-OPTIONS') === '1')
+            return optionObjs // 答案恢复选项顺序
+          var optionsOrder = (Persistence.getItem('ANKI-OPTIONS-ORDER') || '').trim().split(',')
+          optionObjs = optionObjs.sort(function(a, b) {
+            return optionsOrder.indexOf(a.key + '') - optionsOrder.indexOf(b.key + '')
+          })
+        }
+        return optionObjs
+      }
+  
+      function isNormalOption() {
+        if (Persistence.isAvailable()) {
+          return Persistence.getItem('ANKI-SETTINGS-NORMAL-OPTIONS') === '1'
+        } else {
+          return false
+        }
+      }
+      function autoAction(ease_level){
+        web_answer_button = document.querySelectorAll('.btn.btn-primary.btn-lg.m-1')
+        if (web_answer_button.length > 0){
+          if (web_answer_button.length != 4){
+            alert2('Autoaction is not working, only find ' + web_answer_button.length + ' answer buttons')
+            return
+          }
+          web_answer_button[ease_level - 1].click()
+        } else if (typeof pycmd !== "undefined") {
+          pycmd("ease" + ease_level)
+          // 【所有界面(AnkiWebView)】不匹配才会转交下面的逻辑
+          // domDone: 页面加载完成
+          // close: 关闭当前页面
+          // 【Reviewer界面】
+          // ans 显示答案
+          // ease1-ease4 重来-简单
+          // edit 编辑
+          // more 显示更多选项
+          // play:audio_url 播放音频
+          // updateToolbar 更新工具栏（在正常使用时也会发送，其他都不会）
+          // statesMutated 状态改变
+          // 【Overview界面】
+          // 【ToolBar界面】
+          // 【DeckBrowser界面】
+        } else if (typeof study !== "undefined") {
+          study.ease(ease_level)
+        } else if (typeof AnkiDroidJS !== "undefined") {
+          
+          if (ease_level == 1) {
+            buttonAnswerEase1()
+          } else if (ease_level == 2) {
+            buttonAnswerEase2()
+          } else if (ease_level == 3) {
+            buttonAnswerEase3()
+          } else if (ease_level == 4) {
+            buttonAnswerEase4()
+          }
+          // 【AnkiDroid】
+          // showAnswer() 显示答案
+          // buttonAnswerEase1()-buttonAnswerEase4() 重来-简单
+          // ankiShowOptionsMenu 显示更多选项
+          // ankiShowNavDrawer() 显示导航栏
+          // reloadPage() 刷新页面
+          // ankiMarkCard() 标记卡片
+          // ankiToggleFlag(0-4) 旗标卡片，无红橙绿蓝
+          // ankiShowToast(text) 显示提示
+        } else if (window.anki && window.sendMessage2) {
+          window.sendMessage2("ankitap", "ease" + ease_level)
+        }
+      }
+    </script>
+  
+    <div id="tips" class="tips">
+  
+    </div>
+    
+  </div>
+  
+  <div id="notes-wrapper">
+  </div>
+</body>
+  
+  <script>
+    function getEaseLevel() {
+      if (Persistence.isAvailable()) {
+        var ease = Persistence.getItem('ANKI-EASE') || 0
+        return ease
+      } else {
+        return 0
+      }
+    }
+    
+    function setTimerBar() {
+
+      var tags = cardTags().split(' ')
+      if (tags.length === 0 || tags[0] === '') {
+        return
+      }
+      
+      // 找到其中time_limit=的标签
+      var time_limit_tag = tags.find(tag => tag.startsWith('review_limit='))
+      if (time_limit_tag) {
+
+        var time_limit = parseInt(time_limit_tag.split('=')[1])
+        if (time_limit > 0) {
+          
+          var timerBar = document.getElementById('front-timer-bar')
+          if (Persistence.isAvailable()){
+            if (Persistence.getItem('ANKI-SETTINGS-REVIEW-LIMIT') === '0') {
+              timerBar.style.display = 'none'
+              return
+            }
+            if (Persistence.getItem('ANKI-SETTINGS-ANIMATION') !== '0') {
+              // 设置宽度变窄的动画
+              timerBar.style.animation = `width-reverse ${time_limit}s linear`
+            }
+            if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') === true){
+              timerBar.style.animationPlayState = 'paused'
+            }
+            else
+              timerBar.style.animationPlayState = 'running'
+            // 设置倒计时
+            timerBar.textContent = time_limit
+            var timerBarInterval = Persistence.getItem('ANKI-TIMER-BAR-INTERVAL')
+            if (timerBarInterval) {
+              clearInterval(timerBarInterval)
+            }
+            timerBar.addEventListener('mouseenter', function () {
+              timerBar.style.animationPlayState = 'paused'
+              // alert2('倒计时暂停')
+            })
+            timerBar.addEventListener('mouseout', function () {
+              if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') === true) return
+              timerBar.style.animationPlayState = 'running'
+              // alert2('倒计时继续')
+            })
+            timerBar.addEventListener('click', function () {
+              if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') !== true){ // 还可能是undefined
+                Persistence.setItem('ANKI-REVIEW-LIMIT-PAUSED', true)
+              }
+              else {
+                Persistence.setItem('ANKI-REVIEW-LIMIT-PAUSED', false)
+                timerBar.style.animationPlayState = 'running'
+              }
+            })
+            
+            timerBarInterval = setInterval(function () {
+              var timerBar = document.getElementById('front-timer-bar')
+              // 判断timerBar是否有鼠标悬停
+              if (timerBar.style.animationPlayState === 'paused')
+                return
+              var time = parseInt(timerBar.textContent)
+              time -= 1
+              if (time <= 0) {
+                var timerBarInterval = Persistence.getItem('ANKI-TIMER-BAR-INTERVAL')
+                clearInterval(timerBarInterval)
+                Persistence.removeItem('ANKI-TIMER-BAR-INTERVAL')
+                // timerBar.innerHTML = '<span style="color:red;text-align:center;">⚠️ TLE ⚠️</span>'
+                  autoAction(getEaseLevel())
+              }
+              else timerBar.innerHTML = `${time}`
+            }, 1000)
+            Persistence.setItem('ANKI-TIMER-BAR-INTERVAL', timerBarInterval)
+          }
+        }
+      }
+      else {
+        var timerBar = document.getElementById('front-timer-bar')
+        timerBar.style.display = 'none'
+      }
+    }
+    function alert2(msg) {
+      if (typeof AnkiDroidJS !== "undefined") {
+        confirm(msg)
+        // 传统Toast接口已失效
+        // window.location.href = "signal:anki_show_toast:" + encodeURI(msg)
+        // ankiShowToast(msg)
+      } else {
+        alert(msg)
+      }
+    }
+    function tramp() {
+      var author_str = "麦花定制专业版多合一无插件选择题模板v10<br>在原版基础上修补bug、选项部分隐藏，<br>增加答案选项顺序恢复、自动回答、定时器、弹性布局、深色模式和踩麦花功能(逃<br>前往CSDN查看源码和更多帮助呐<br>卡片制作需要插件，个人建议genanki<br>鸣谢AwesomeSelectv3.16(但是点名批评原作者，99/年不要太难看)<br>适合PC24.06.3;AnkiDroid2.18.1<br>⭐️麦花 2024.10⭐️"
+      // 还有，选项不能输入单引号和双引号本来是个bug，原作者修好了，然后说是高级功能要付费（人类迷惑行为？）
+      var source_str = "https://blog.csdn.net/qq_41019645"
+      var awesome_select_source_str = "https://github.com/git9527/anki-awesome-select"
+      if (!Persistence.isAvailable()) {
+        alert2(author_str)
+        if (confirm("前往CSDN继续踩麦花？确定/取消")){
+          window.location.href = source_str;
+        }
+        return
+      }
+      let tramp_cnt = Persistence.getItem('ANKI-TRAMP-CNT') || 0
+      let third_confirmed = Persistence.getItem('ANKI-THIRD-CONFIRMED') || false
+      if (tramp_cnt == 0) {
+          alert2("麦花被踩了一下！")
+          document.querySelector('#back-footer').innerHTML = '<a href="javascript:tramp();">继续踩</a>'
+          tramp_cnt++
+      } else if (tramp_cnt == 1) {
+        alert2("麦花又被踩了一下！")
+        tramp_cnt++
+      } else if (tramp_cnt == 2) {
+        if (!third_confirmed && confirm("麦花很生气 后果很严重\n道歉 or 继续踩？")) {
+          alert2('麦花接受了你的道歉~<br>' + author_str)
+          if (confirm("前往CSDN继续踩麦花？确定/取消")){
+            window.location.href = source_str;
+          }
+          tramp_cnt = 0
+          document.querySelector('#back-footer').innerHTML = '<a href="javascript:tramp();">踩麦花</a>'
+        } else {
+          third_confirmed = true
+          if (confirm("前往CSDN继续踩麦花？确定/取消")){
+            window.location.href = source_str;
+            third_confirmed = false
+            tramp_cnt = 0
+            document.querySelector('#back-footer').innerHTML = '<a href="javascript:tramp();">踩麦花</a>'
+          }
+        }
+      }
+      Persistence.setItem('ANKI-TRAMP-CNT', tramp_cnt)
+      Persistence.setItem('ANKI-THIRD-CONFIRMED', third_confirmed)
+    }
+
+    function showTags () {
+      var tags = cardTags().trim()
+      if (!tags) return
+      tags = tags.split(' ')
+      var tagList = '<span class="tag-title">标签: </span>'
+      for (var tag of tags) {
+        if (tag) {
+          tagList += '<span class="single-tag">' + tag + '</span>'
+        }
+      }
+      document.getElementById("back-tag").innerHTML = tagList
+    }
+
+    function numberToAlpha(numbers) {
+      var optionsOrder = []
+      if (Persistence.isAvailable()) {
+        optionsOrder = Persistence.getItem('ANKI-OPTIONS-ORDER').trim().split(',')
+        if (Persistence.getItem('ANKI-SETTINGS-RESTORE-OPTIONS') === '1'){
+          var restoredOptionsOrder = []
+          var i = 1
+          while(i <= optionsOrder.length) {
+            restoredOptionsOrder.push((i) + '')
+            i += 1
+          }
+          optionsOrder = restoredOptionsOrder
+        }
+      }
+      var alphas = []
+      for (var i in numbers) {
+        var number = numbers[i]
+        if (number) {
+          if (optionsOrder.length === 0) {
+            alphas.push(String.fromCharCode(Number.parseInt(number) + 64))
+          } else {
+            alphas.push(String.fromCharCode(optionsOrder.indexOf(number) + 65))
+          }
+        }
+      }
+      alphas.sort()
+      return alphas.toString()
+    }
+    function isJudgementQuestion(correctAnswers) {
+      // 识别如果含有 ✓ T y 对
+      return (correctAnswers.length === 2) && (correctAnswers.indexOf('✓') > -1 || correctAnswers.indexOf('T') > -1 || correctAnswers.indexOf('y') || correctAnswers.indexOf('对') > -1)
+    }
+    function dealQuestionType(correctAnswers) {
+      var showQuestionType = Persistence.getItem('ANKI-SETTINGS-SHOW-QUESTION-TYPE') || '0'
+      if (showQuestionType === '1') {
+        if (isJudgementQuestion(correctAnswers)) {
+          return '【判断】'
+        } else {
+          return correctAnswers.length > 1 ? '【多选】' : '【单选】'
+        }
+      } else {
+        return ' '
+      }
+    }
+
+    function showAnswers() {
+      var correctAnswers = numberToAlpha(cardAnswer().trim().split('||'))
+      var yourChoice = '未选择'
+      if (Persistence.isAvailable()) {
+        var selectedNumbers = (Persistence.getItem('ANKI-SELECTED') || '').trim().split(',')
+        if (selectedNumbers.length > 0 && selectedNumbers[0] !== '') {
+          yourChoice = numberToAlpha(selectedNumbers)
+        }
+        document.getElementById('questionType').innerHTML = dealQuestionType(correctAnswers)
+      }
+      document.getElementById('tips').innerHTML = '正确选项：' + correctAnswers + '&nbsp;&nbsp;&nbsp;&nbsp;你的选项：' + yourChoice
+    }
+
+    function showNotes() {
+      if (document.getElementsByClassName('notes-container')[0].innerHTML) {
+        document.getElementById('notes-wrapper').style.display = 'block'
+        var totalHeight = window.innerHeight
+        var left = totalHeight - document.getElementsByClassName('wrap-container')[0].clientHeight - 140
+        if (left < 80) {
+          left = 80
+        }
+        var noteContainer = document.getElementsByClassName('notes-container')[0]
+        noteContainer.style.maxHeight = left + 'px'
+        noteContainer.style.display = 'block'
+        document.getElementsByClassName('notes-button-container')[0].style.display = 'none'
+      }
+    }
+
+    function showNoteButton() {
+      if (document.getElementsByClassName('notes-container')[0].innerHTML) {
+        document.getElementsByClassName('notes-button-container')[0].style.display = 'block'
+        document.getElementById('notes-wrapper').style.display = 'block'
+      }
+    }
+
+    function prepareNotes() {
+      document.getElementById('notes-wrapper').innerHTML = '  <hr>\n' +
+        '  <div class="notes-button-container" onclick="showNotes()">\n' +
+        '    <a href="javascript:showNotes();">显示解析</a>\n' +
+        '  </div>\n' +
+        '  <div class="notes-container"></div>'
+      document.getElementsByClassName('notes-container')[0].innerHTML = cardNotes()
+      if (Persistence.isAvailable()) {
+        if (Persistence.getItem('ANKI-SETTINGS-HIDE-NOTES') !== '1') {
+          showNotes()
+        } else {
+          showNoteButton()
+        }
+      } else {
+        showNotes()
+      }
+    }
+    function checkDarkMode() {
+      if (Persistence.isAvailable() && Persistence.getItem('ANKI-SETTINGS-DARK-MODE') === '1') {
+        var list = ['body-container', 'question', 'option', 'notes-container', 'notes-button-container', 'modal-content', 'mui-switch', 'mui-switch mui-switch-animbg', 'single-setting', 'back-timer-bar', 'tag-title', 'single-tag']
+        for (var i of list) {
+          var elements = document.getElementsByClassName(i)
+          for (var j of elements) {
+            j.classList.add('night')
+          }
+        }
+      }
+    }
+    function checkCereanilla() {
+      if (Persistence.isAvailable() && Persistence.getItem('ANKI-SETTINGS-CEREANILLA') === '0') {
+        document.getElementById('back-footer').style.display = 'none'
+      } else {
+        document.getElementById('back-footer').style.display = 'block'
+      }
+    }
+
+    showTags()
+    showAnswers()
+    showBackOptions()
+    prepareNotes()
+    setTimerBar()
+    checkDarkMode()
+    checkCereanilla()
+    fillQuestion()
+  
+  </script>
+  
