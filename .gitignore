@@ -1,3 +1,4 @@
-./masked
-./download
-./apkg
+masked/*
+download/*
+apkg/*
+*.txt
