@@ -9,7 +9,7 @@
 <div id="card-question-cloze" style="display: none;">{{cloze:question}}</div>
 <div id="card-question" style="display: none;">{{question}}</div>
 
-<body>
+<body style="display:none;">
 <div class="timer-bar-container"><div id="front-timer-bar" class="timer-bar"></div></div>
 <div class="wrap-container">
   <div class="body-container">
@@ -132,11 +132,18 @@
   }
 
 
-  function showFrontOptions(animation, hideOption, randomOption, delayOption) {
+  function showFrontOptions(animation, hideOption, randomOption, delayOption, darkMode) {
     var keySeq = []
     var optionObjs = getOptionObjs(randomOption)
     initEmptyOptionList(optionObjs)
     var liList = ''
+    var default_str = "option"
+    if (animation === '1') {
+      default_str += ' options-clickable'
+    }
+    if (darkMode === '1') {
+      default_str += ' night'
+    }
     for (var i in optionObjs) {
       var _optionObj = optionObjs[i]
       var _option = _optionObj.label
@@ -147,15 +154,12 @@
           _option = _optionObj.label.substring(0, endIndex)
         // alert(_option)
       }
-      if (animation === '1') {
-        liList += "<li id='" + _optionObj.key + "' class='option options-clickable options-not-selected' onclick='markSelected(\"1\", this)'>" + _option + "</li>"
-      } else {
-        liList += "<li id='" + _optionObj.key + "' class='option options-not-selected' onclick='markSelected(\"0\", this)'>" + _option + "</li>"
-      }
+      liList += "<li id='" + _optionObj.key + "' class='" + default_str + " options-not-selected' onclick='markSelected(\"1\", this)'>" + _option + "</li>"
       keySeq.push(_optionObj.key)
     }
     if (Persistence.isAvailable()) {
       Persistence.setItem('ANKI-OPTIONS-ORDER', keySeq.toString())
+      Persistence.getItem('')
     }
     if (delayOption === '1') {
       isDelayOptionComing = true
@@ -325,7 +329,7 @@
     // document.getElementById('hide-notes').checked = hideNotes === '1'
     // document.getElementById('auto-flip').checked = autoFlip === '1'
     // document.getElementById('animation').checked = animation === '1'
-    showFrontOptions(animation, hideOptions, randomOptions, delayOptions)
+    showFrontOptions(animation, hideOptions, randomOptions, delayOptions, darkMode)
     document.getElementById('questionType').innerHTML = dealQuestionType(cardAnswer())
   }
 
@@ -489,13 +493,11 @@
         }
       }
     }
+    document.body.style.display = 'block'
   }
 
   function checkSettingsAvaiable() {
-    if (document.getElementById('front-options') !== null) {
-      return false // 前面
-    }
-    return true // 背面
+    return false // 前面
   }
 
   function setHotkey() {
@@ -510,7 +512,7 @@
         return
       }
       event.preventDefault()
-      var dict = {
+      var dict = { // 由于Anki占用了abd(包括Caps+abd) A F1 F5 1234567包括Num1-7，找了很久发现NumLock没开时数字键盘还能用，豪坝
         'Insert': -1,
         'End': 0,
         'ArrowDown': 1,
@@ -525,20 +527,24 @@
       var keyCode = event.key || event.which
       if (dict[keyCode] != null) { 
         var index = dict[keyCode]
-        if (index === -1) {
-          if (checkSettingsAvaiable())
-            showSettings()
-          else {
-            flipToBack()
+        if (checkSettingsAvaiable()){ // 背面
+          if (index === -1) {
+            showSettings() // 显示设置
+          } else if (index >= 0 && index <= 3) {
+            autoAction(index + 1) // 手动分类快捷键
+          }
+        } else { // 正面
+          if (index === -1) {
+            flipToBack() // 翻到背面再显示设置
             setTimeout(function () {
               showSettings()
             }, 100)
+          } else {
+            var options = document.getElementsByClassName('option')
+            if (index < options.length) { // 选择选项
+              options[index].click()
+            }
           }
-          return
-        }
-        var options = document.getElementsByClassName('option')
-        if (index < options.length) {
-          options[index].click()
         }
       }
     }
@@ -548,6 +554,13 @@
     var question = cardQuestion()
     document.getElementById('question').innerHTML = question
   }
+  function alert2(msg) {
+      if (typeof AnkiDroidJS !== "undefined") {
+        confirm(msg) // copy from backside
+      } else {
+        alert(msg)
+      }
+    }
 
   showTags()
   renameIOsSendMessage()

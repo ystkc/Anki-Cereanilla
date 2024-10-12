@@ -9,7 +9,7 @@
 <div id="card-question-cloze" style="display: none;">{{cloze:question}}</div>
 <div id="card-question" style="display: none;">{{question}}</div>
 
-<body>
+<body style="display:none;">
   <div class="timer-bar-container"><div id="front-timer-bar" class="back-timer-bar timer-bar"></div></div>
   <div class="wrap-container">
     <div class="body-container">
@@ -65,7 +65,7 @@
 
         function hideSettings() {
           document.getElementById("settingsModal").style.display = 'none'
-          if (Persistence.isAvailable() && Persistence.getItem('ANKI-SETTINGS-REVIEW-LIMIT') !== '0' && Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') !== '1') {
+          if (Persistence.isAvailable() && Persistence.getItem('ANKI-SETTINGS-REVIEW-LIMIT') !== '0' && Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') !== true) {
             document.getElementById('front-timer-bar').style.animationPlayState = 'running'
           }
         }
@@ -201,78 +201,78 @@
           document.getElementById('settingsModal').innerHTML = '<div class="modal-content">\n' +
             '    <span class="close" onclick="hideSettings()">&times;</span>\n' +
             '    <div class="settings-block">\n' +
-            '      <hr>问题设置\n' + 
+            '      <hr>- 问题设置\n' + 
             '      <div class="single-setting">\n' +
-            '        <div title="目前支持单选/多选/判断" class="setting-label">显示类型</div>\n' +
+            '        <div title="目前支持多选/单选/判断 图片遮盖建议使用anki自带" onclick="alert2(this.title)" class="setting-label">显示类型</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="show-type" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchShowType(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="背面不自动显示解析，可以点击“显示解析”按钮显示" class="setting-label">隐藏解析</div>\n' +
+            '        <div title="答案页面不自动显示解析，而是替换成“显示解析”的按钮" onclick="alert2(this.title)" class="setting-label">隐藏解析</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="hide-notes" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchHideNotes(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
-            '      <hr>选项设置\n' +
+            '      <hr>- 选项设置\n' +
             '      <div class="single-setting">\n' +
-            '        <div class="setting-label">隐藏选项--后内容</div>\n' +
+            '        <div class="setting-label" onclick="alert2(this.title)" title="如题，便于在选项后加一些干扰项提示，开启后做题时隐藏--后的内容，否则一直显示">隐藏选项--后内容</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="hide-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchHideOption(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div class="setting-label">打乱选项位置</div>\n' +
+            '        <div class="setting-label" onclick="alert2(this.title)" title="显示题目时，随机打乱选项位置">打乱选项位置</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="random-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchRandomOption(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div class="setting-label">答案恢复选项顺序</div>\n' +
+            '        <div class="setting-label" onclick="alert2(this.title)" title="如题，翻到背面后会将选项还原到原始位置">答案恢复选项顺序</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="restore-options" class="mui-switch mui-switch-anim" type="checkbox" onchange="extractKeyFromInputAndSave(this, \'ANKI-SETTINGS-RESTORE-OPTIONS\')">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div class="setting-label">延迟显示选项</div>\n' +
+            '        <div class="setting-label" onclick="alert2(this.title)" title="显示题目后1.5s再显示选项">延迟显示选项</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="delay-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchDelayOption(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
-            '      <hr>外观设置\n' +
+            '      <hr>- 外观设置\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="深色模式搭配纯色模式效果更佳" class="setting-label">纯色模式</div>\n' +
+            '        <div onclick="alert2(this.title)" title="深色模式搭配纯色模式效果更佳" class="setting-label">纯色模式</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="normal-option" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchNormalOption(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="时间提示条的动画"class="setting-label">动画效果</div>\n' +
+            '        <div onclick="alert2(this.title)" title="时间提示条和弹性框的动画"class="setting-label">动画效果</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="animation" class="mui-switch mui-switch-anim" type="checkbox" onchange="extractKeyFromInputAndSave(this, \'ANKI-SETTINGS-ANIMATION\')">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="也就是透明模式，调整anki到深色模式即可适配" class="setting-label">深色模式</div>\n' +
+            '        <div onclick="alert2(this.title)" title="也就是透明模式，调整anki到深色模式即可适配" class="setting-label">深色模式</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="dark-mode" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchDarkMode(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
-            '      <hr>功能设置\n' +
+            '      <hr>- 功能设置\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="作出选择或时间用完后自动翻转到背面" class="setting-label">自动翻转</div>\n' +
+            '        <div onclick="alert2(this.title)" title="作出选择或时间用完后自动翻转到背面" class="setting-label">自动翻转</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="auto-flip" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchAutoFlip(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="全对-简单；漏选-困难；错选-重来" class="setting-label">自动分类</div>\n' +
+            '        <div onclick="alert2(this.title)" title="全对-简单；漏选-困难；错选-重来" class="setting-label">自动分类</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="review-limit" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchReviewLimit(this)">\n' +
             '        </div>\n' +
             '      </div>\n' +
             '      <div class="single-setting">\n' +
-            '        <div title="调节学习压力（不是" class="setting-label">踩麦花</div>\n' +
+            '        <div onclick="alert2(this.title)" title="调节学习压力（不是" class="setting-label">踩麦花</div>\n' +
             '        <div class="setting-switch">\n' +
             '          <input id="cereanilla" class="mui-switch mui-switch-anim" type="checkbox" onchange="switchCereanilla(this)">\n' +
             '        </div>\n' +
@@ -519,36 +519,46 @@
               timerBar.style.display = 'none'
               return
             }
-            if (Persistence.getItem('ANKI-SETTINGS-ANIMATION') !== '0') {
-              // 设置宽度变窄的动画
-              timerBar.style.animation = `width-reverse ${time_limit}s linear`
+            if (Persistence.getItem('ANKI-SETTINGS-ANIMATION') !== '0'){
+              if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') !== true){ // 用户点击了计时棒 或者打开了设置页面
+                // 设置宽度变窄的动画
+                timerBar.style.animation = `width-reverse ${time_limit}s linear`
+                timerBar.style.animationPlayState = 'running'
+                timerBar.textContent = '点此暂停计时'
+              } else {
+                timerBar.style.animation = `width-reverse ${time_limit}s linear`
+                timerBar.style.animationPlayState = 'paused'
+                timerBar.textContent = '继续计时'
+              }
+            } else {
+              timerBar.style.display = 'none'
+              return
             }
-            if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') === true){
-              timerBar.style.animationPlayState = 'paused'
-            }
-            else
-              timerBar.style.animationPlayState = 'running'
             // 设置倒计时
-            timerBar.textContent = time_limit
+            timerBar.dataset.id = time_limit
             var timerBarInterval = Persistence.getItem('ANKI-TIMER-BAR-INTERVAL')
             if (timerBarInterval) {
               clearInterval(timerBarInterval)
             }
             timerBar.addEventListener('mouseenter', function () {
+                timerBar.textContent = '继续计时'
               timerBar.style.animationPlayState = 'paused'
               // alert2('倒计时暂停')
             })
             timerBar.addEventListener('mouseout', function () {
               if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') === true) return
+              timerBar.textContent = '点此暂停计时'
               timerBar.style.animationPlayState = 'running'
               // alert2('倒计时继续')
             })
             timerBar.addEventListener('click', function () {
               if (Persistence.getItem('ANKI-REVIEW-LIMIT-PAUSED') !== true){ // 还可能是undefined
+                timerBar.textContent = '继续计时'
                 Persistence.setItem('ANKI-REVIEW-LIMIT-PAUSED', true)
               }
               else {
                 Persistence.setItem('ANKI-REVIEW-LIMIT-PAUSED', false)
+                timerBar.textContent = '点此暂停计时'
                 timerBar.style.animationPlayState = 'running'
               }
             })
@@ -558,7 +568,7 @@
               // 判断timerBar是否有鼠标悬停
               if (timerBar.style.animationPlayState === 'paused')
                 return
-              var time = parseInt(timerBar.textContent)
+              var time = parseInt(timerBar.dataset.id)
               time -= 1
               if (time <= 0) {
                 var timerBarInterval = Persistence.getItem('ANKI-TIMER-BAR-INTERVAL')
@@ -567,7 +577,7 @@
                 // timerBar.innerHTML = '<span style="color:red;text-align:center;">⚠️ TLE ⚠️</span>'
                   autoAction(getEaseLevel())
               }
-              else timerBar.innerHTML = `${time}`
+              else timerBar.dataset.id = `${time}`
             }, 1000)
             Persistence.setItem('ANKI-TIMER-BAR-INTERVAL', timerBarInterval)
           }
@@ -589,9 +599,10 @@
       }
     }
     function tramp() {
-      var author_str = "麦花定制专业版多合一无插件选择题模板v10<br>在原版基础上修补bug、选项部分隐藏，<br>增加答案选项顺序恢复、自动回答、定时器、弹性布局、深色模式和踩麦花功能(逃<br>前往CSDN查看源码和更多帮助呐<br>卡片制作需要插件，个人建议genanki<br>鸣谢AwesomeSelectv3.16(但是点名批评原作者，99/年不要太难看)<br>适合PC24.06.3;AnkiDroid2.18.1<br>⭐️麦花 2024.10⭐️"
+      var author_str = "麦花定制专业版多合一无插件选择题模板v10<br>在原版基础上修补bug、选项部分隐藏，<br>增加答案选项顺序恢复、自动回答、定时器、弹性布局、深色模式和踩麦花功能(逃<br>使用GPLv3协议，前往CSDN查看源码和更多帮助呐<br>卡片制作需要插件，个人建议genanki<br>鸣谢AwesomeSelectv3.16(但是点名批评原作者，99/年不要太难看)<br>适合PC24.06.3;AnkiDroid2.18.1<br>⭐️麦花 2024.10⭐️"
       // 还有，选项不能输入单引号和双引号本来是个bug，原作者修好了，然后说是高级功能要付费（人类迷惑行为？）
       var source_str = "https://blog.csdn.net/qq_41019645"
+      var anki_cereanilla_source_str = "https://github.com/ystkc/Anki-Cereanilla"
       var awesome_select_source_str = "https://github.com/git9527/anki-awesome-select"
       if (!Persistence.isAvailable()) {
         alert2(author_str)
@@ -751,6 +762,7 @@
           }
         }
       }
+      document.body.style.display = 'block'
     }
     function checkCereanilla() {
       if (Persistence.isAvailable() && Persistence.getItem('ANKI-SETTINGS-CEREANILLA') === '0') {
@@ -758,6 +770,9 @@
       } else {
         document.getElementById('back-footer').style.display = 'block'
       }
+    }
+    function checkSettingsAvaiable() {
+      return true // 背面
     }
 
     showTags()

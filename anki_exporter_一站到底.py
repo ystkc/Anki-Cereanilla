@@ -11,7 +11,7 @@ with open('deck_templates/style.css', encoding='utf-8') as f:
 
 my_model = genanki.Model(
   283560401,
-  '选择题by麦花⭐️(onAwesomeSelect3.16)',
+  '选择题by麦花⭐️(on麦花板v10)',
   fields=[
     {'name': 'yzdd_id'},
     {'name': 'question'},
@@ -23,7 +23,7 @@ my_model = genanki.Model(
   ],
   templates=[
     {
-      'name': '选择题by麦花⭐️(onAwesomeSelect3.16)',
+      'name': '选择题by麦花⭐️(on麦花板v10)',
       'qfmt': front_template,
       'afmt': back_template,
     },
@@ -38,7 +38,7 @@ class MyNote(genanki.Note):
 my_deck = genanki.Deck(
     283560401,
     '一站到底',
-    description='⭐️整理by麦花⭐️\nwith genanki')
+    description='⭐️整理by麦花⭐️<br>on麦花板v10<br>with genanki')
 
 import sqlite3
 import requests

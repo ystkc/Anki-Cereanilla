@@ -284,7 +284,7 @@ a {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
+    padding-top: 50px; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -300,13 +300,13 @@ a {
     padding: 10px;
     border: 1px solid #888;
     width: 300px;
-    height: 400px;
+    height: 320px;
     border-radius: 5px;
     overflow: scroll;
     color: black;
 }
 .night.modal-content {
-    background-color: #27282266;
+    background-color: #272822aa;
     color: white;
 }
 

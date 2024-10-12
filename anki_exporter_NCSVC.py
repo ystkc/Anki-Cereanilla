@@ -38,7 +38,7 @@ class MyNote(genanki.Note):
 my_deck = genanki.Deck(
     20242048,
     '单词竞赛2024',
-    description='BCZ_NCSVC2024<br>⭐️整理by麦花⭐️<br>with genanki<br>点击答案页计时条可以暂停计时')
+    description='BCZ_NCSVC2024<br>⭐️整理by麦花⭐️<br>with genanki<br>点击答案页计时条可以暂停计时 可随时退出')
 
 
 def has_chinese(s):
@@ -148,9 +148,9 @@ for row in rows:
 
 
 import time
-time_str = time.strftime('%Y%m%d_%H%M%S第%U周', time.localtime(time.time()))
+time_str = time.strftime('第%U周', time.localtime(time.time()))
 # 输出文件名    
 my_package = genanki.Package(my_deck)
 my_package.media_files = media_files
 os.makedirs('apkg', exist_ok=True)
-my_package.write_to_file(f'apkg/BCZ-NCSVC2024({id_start}-{id_end})-{time_str}-1.0.apkg')
+my_package.write_to_file(f'apkg/{time_str}-BCZ-NCSVC2024({id_start}-{id_end}-v10).apkg')
