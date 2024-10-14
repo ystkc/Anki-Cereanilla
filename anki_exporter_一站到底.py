@@ -10,8 +10,8 @@ with open('deck_templates/style.css', encoding='utf-8') as f:
     my_style = f.read()
 
 my_model = genanki.Model(
-  283560401,
-  '选择题by麦花⭐️(on麦花板v10)',
+  283560010,
+  '选择题by麦花⭐️(v10)',
   fields=[
     {'name': 'yzdd_id'},
     {'name': 'question'},
@@ -23,7 +23,7 @@ my_model = genanki.Model(
   ],
   templates=[
     {
-      'name': '选择题by麦花⭐️(on麦花板v10)',
+      'name': '选择题by麦花⭐️(v10)',
       'qfmt': front_template,
       'afmt': back_template,
     },
@@ -46,7 +46,7 @@ import html
 import os
 from PIL import Image
 
-conn = sqlite3.connect('../yzdd.db')
+conn = sqlite3.connect('../BCZ-Automata/yzdd.db')
 c = conn.cursor()
 # 查询数据条数
 c.execute("SELECT COUNT(*) FROM yzdd")
@@ -55,6 +55,7 @@ id_start = input("请输入起始ID(最低1):")
 id_end = input(f"请输入结束ID({count}):")
 c.execute("SELECT * FROM yzdd WHERE INDEX_ID >= ? AND INDEX_ID <= ?", (id_start, id_end))
 rows = c.fetchall()
+# 添加教程卡片
 
 media_files = []
 cloze_str = '{{c1::}}'
@@ -96,7 +97,7 @@ for row in rows:
         img.save(img_compressed_path)
     media_files.append(img_compressed_path)
     # 构造卡片
-    fields = [html.escape(f) for f in [f'{id}', f'({qid}){title}{cloze_str}', '', f'{answer}||{option_2}||{option_3}||{option_4}', '1', detail, 'tag']]
+    fields = [html.escape(f) for f in [f'{id}', f'({qid}){title}{cloze_str}', '', f'{answer}||{option_2}||{option_3}||{option_4}', '1', detail, 'tag time_limit=9 review_limit=9']]
     # 图片居中显示
     fields[2] = f'<img style="width:100px;margin:10px;" src="{img_compressed_name}" onclick="updateImage(this, \'{image_url}\')">'
     my_note = MyNote(
@@ -104,15 +105,15 @@ for row in rows:
         fields=fields)
     my_deck.add_note(my_note)
     print(f'已添加第{id}/{id_end}个卡片({qid})')
-    if input("按任意键继续...") == 'q':
-        break
+    # if input("按任意键继续...") == 'q':
+    #     break
     
 
 
 import time
-time_str = time.strftime('%Y%m%d_%H%M%S第%U周', time.localtime(time.time()))
+time_str = time.strftime('第%U周', time.localtime(time.time()))
 # 输出文件名    
 my_package = genanki.Package(my_deck)
 my_package.media_files = media_files
 os.makedirs('apkg', exist_ok=True)
-my_package.write_to_file(f'apkg/一站到底-{id_start}-{id_end}-{time_str}.apkg')
+my_package.write_to_file(f'apkg/2024一站到底-{time_str}({id_start}-{id_end}).v10.apkg')

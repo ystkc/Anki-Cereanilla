@@ -11,7 +11,7 @@ with open('deck_templates/style.css', encoding='utf-8') as f:
 
 my_model = genanki.Model(
   283560010,
-  '选择题by麦花⭐️(v10)',
+  '选择题by麦花⭐️(on麦花板v10)',
   fields=[
     {'name': 'yzdd_id'},
     {'name': 'question'},
@@ -23,7 +23,7 @@ my_model = genanki.Model(
   ],
   templates=[
     {
-      'name': '选择题by麦花⭐️(v10)',
+      'name': '选择题by麦花⭐️(on麦花板v10)',
       'qfmt': front_template,
       'afmt': back_template,
     },
@@ -121,17 +121,17 @@ for row in rows:
     # 构造卡片
     tag = ''
     if '{t3}' in title: # 例句填词
-        tag = '1例句填词 time_limit=6 review_limit=1'
+        tag = '1例句填词 time_limit=6 review_limit=0.7,5,5' # review_limit实际上3个参数，默认为-1,-1,-1，表示暂停
     elif '{' in title: # 例句选义
-        tag = '2例句选义 time_limit=6 review_limit=1'
+        tag = '2例句选义 time_limit=6 review_limit=0.7,5,5'
     elif '[' in title: # 中华文化
-        tag = '3中华文化 time_limit=6 review_limit=1'
+        tag = '3中华文化 time_limit=6 review_limit=5,5,5'
     elif has_chinese(title): # 中文选词
-        tag = '4中文选词 time_limit=6 review_limit=1'
+        tag = '4中文选词 time_limit=6 review_limit=0.7,5,5'
     elif has_chinese(answer): # 单词选义
-        tag = '5单词选义 time_limit=6 review_limit=1'
+        tag = '5单词选义 time_limit=6 review_limit=0.7,5,5'
     else : # 同义替换
-        tag = '6同义替换 time_limit=6 review_limit=1'
+        tag = '6同义替换 time_limit=6 review_limit=0.7,5,5'
     
     option_2 += get_cor_word(option_2)
     option_3 += get_cor_word(option_3)

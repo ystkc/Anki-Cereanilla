@@ -509,8 +509,15 @@
       // 找到其中time_limit=的标签
       var time_limit_tag = tags.find(tag => tag.startsWith('review_limit='))
       if (time_limit_tag) {
-
-        var time_limit = parseInt(time_limit_tag.split('=')[1])
+        var target_str = time_limit_tag.split('=')[1]
+        var data_str_semicolon = target_str.split(';')
+        var data_str_comma = target_str.split(',')
+        var data_str = data_str_semicolon.length > data_str_comma.length ? data_str_semicolon : data_str_comma
+        var time_limit = -1
+        var ease_level = getEaseLevel()
+        if (ease_level === 3) time_limit = parseFloat(data_str[0] || -1)
+        else if (ease_level === 2)time_limit = parseFloat(data_str[1] || -1)
+        else if (ease_level === 1)time_limit = parseFloat(data_str[2] || -1) // 小于0的时候显示已暂停
         if (time_limit > 0) {
           
           var timerBar = document.getElementById('front-timer-bar')
@@ -568,8 +575,8 @@
               // 判断timerBar是否有鼠标悬停
               if (timerBar.style.animationPlayState === 'paused')
                 return
-              var time = parseInt(timerBar.dataset.id)
-              time -= 1
+              var time = parseFloat(timerBar.dataset.id)
+              time -= 0.3
               if (time <= 0) {
                 var timerBarInterval = Persistence.getItem('ANKI-TIMER-BAR-INTERVAL')
                 clearInterval(timerBarInterval)
@@ -577,13 +584,19 @@
                 // timerBar.innerHTML = '<span style="color:red;text-align:center;">⚠️ TLE ⚠️</span>'
                   autoAction(getEaseLevel())
               }
-              else timerBar.dataset.id = `${time}`
-            }, 1000)
+              else {
+                timerBar.dataset.id = `${time}`
+                // timerBar.innerHTML = `剩余 ${time.toFixed(1)} 秒`
+              }
+            }, 300)
             Persistence.setItem('ANKI-TIMER-BAR-INTERVAL', timerBarInterval)
           }
+        } else {// 小于等于0或未定义或格式不正确
+          var timerBar = document.getElementById('front-timer-bar')
+          timerBar.style.innerHTML = '已暂停'
         }
       }
-      else {
+      else { 
         var timerBar = document.getElementById('front-timer-bar')
         timerBar.style.display = 'none'
       }
