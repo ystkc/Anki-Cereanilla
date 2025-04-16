@@ -153,4 +153,4 @@ time_str = time.strftime('第%U周', time.localtime(time.time()))
 my_package = genanki.Package(my_deck)
 my_package.media_files = media_files
 os.makedirs('apkg', exist_ok=True)
-my_package.write_to_file(f'apkg/{time_str}-BCZ-NCSVC2024({id_start}-{id_end}-v10).apkg')
+my_package.write_to_file(f'apkg/{time_str}-BCZ-NCSVC2024({id_start}-{id_end}-v10)-麦花.apkg')

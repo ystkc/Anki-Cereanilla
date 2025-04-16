@@ -94,10 +94,13 @@ for row in rows:
     if not os.path.exists(img_compressed_path):
         img = Image.open(img_path)
         img.thumbnail((100, 100))
+        # 转换为RGB模式
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
         img.save(img_compressed_path)
     media_files.append(img_compressed_path)
     # 构造卡片
-    fields = [html.escape(f) for f in [f'{id}', f'({qid}){title}{cloze_str}', '', f'{answer}||{option_2}||{option_3}||{option_4}', '1', detail, 'tag time_limit=9 review_limit=9']]
+    fields = [html.escape(f) for f in [f'{id}', f'({qid}){title}{cloze_str}', '', f'{answer}||{option_2}||{option_3}||{option_4}', '1', detail, 'tag time_limit=7 review_limit=7']]
     # 图片居中显示
     fields[2] = f'<img style="width:100px;margin:10px;" src="{img_compressed_name}" onclick="updateImage(this, \'{image_url}\')">'
     my_note = MyNote(
@@ -116,4 +119,4 @@ time_str = time.strftime('第%U周', time.localtime(time.time()))
 my_package = genanki.Package(my_deck)
 my_package.media_files = media_files
 os.makedirs('apkg', exist_ok=True)
-my_package.write_to_file(f'apkg/2024一站到底-{time_str}({id_start}-{id_end}).v10.apkg')
+my_package.write_to_file(f'apkg/2024一站到底-{time_str}({id_start}-{id_end}).v10-麦花.apkg')
